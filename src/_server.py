@@ -9,6 +9,7 @@ import logging
 
 import uvicorn
 from dotenv import load_dotenv
+from src.util.numbers import decimal_to_str
 from fastapi import FastAPI, Request
 from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseSettings
@@ -74,16 +75,14 @@ async def solve(problem: BatchAuctionModel, request: Request):  # type: ignore
     print("Parameters Supplied", solver_args)
 
     # 1. Solve BatchAuction: update batch_auction with
-    # batch.solve()
+    batch.solve()
+    print("in solve",99)
 
     trivial_solution = {
-        "orders": {},
-        "foreign_liquidity_orders": [],
+        "ref_token": batch.ref_token.value,
+        "orders": {order.order_id: order.as_dict() for order in batch.orders if order.is_executed() },
+        "prices": {str(key): decimal_to_str(value) for key, value in batch.prices.items()},
         "amms": {},
-        "prices": {},
-        "approvals": [],
-        "interaction_data": [],
-        "score": "0",
     }
 
     print("\n\n*************\n\nReturning solution: " + str(trivial_solution))
